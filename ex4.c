@@ -44,7 +44,7 @@ void afficherListe(Voiture * head) {
 
 
 void delete_element(Voiture* head[], char *modele){
-    Voiture * voiture_actuelle = head;
+    Voiture * voiture_actuelle = *head;
     if (strcmp(voiture_actuelle->modele, modele)){
         *head = voiture_actuelle->suivant;
     }else{
@@ -66,11 +66,11 @@ int main() {
     insert_end(&head, &voiture1);
     insert_end(&head, &voiture2);
 
-    printf("liste de départ :");
+    printf("liste de départ :\n");
     afficherListe(head);
 
 
-    printf("liste en enlevant une voiture :");
+    printf("liste en enlevant une voiture :\n");
     delete_element(&head, "500");
     afficherListe(head);
 

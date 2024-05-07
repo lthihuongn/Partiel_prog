@@ -1,118 +1,84 @@
 #include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
 
-typedef struct {
-    int estPositionne;
-} Place;
+typedef struct Voiture {
+    char *marque;
+    char *modele;
+    int annee;
+    struct Voiture * suivant;
+} Voiture;
 
-int compteur;
 
-Place parking[5][3];
+Voiture creer_voiture(char *marque, char *modele, int annee){
+    Voiture voiture = {.marque = marque, .modele = modele, .annee= annee};
+    return voiture;
+}
 
-void ajouter(int x, int y) {
-    if (x >= 0 && x < 5 && y >= 0 && y < 3) {
-        if (parking[x][y].estPositionne == 0){
-            parking[x][y].estPositionne = 1;
-            compteur +=1;
-            if (x==0){
-                printf("La place A%d vient d'etre prise\n", y+1);
-            }else if (x==1){
-                printf("La place B%d vient d'etre prise\n", y+1);
-            }else if (x==2){
-                printf("La place C%d vient d'etre prise\n", y+1);
-            }else if (x==3){
-                printf("La place D%d vient d'etre prise\n", y+1);
-            }else if (x==4){
-                printf("La place E%d vient d'etre prise\n", y+1);
+void insert_end(Voiture* head[], Voiture *voiture) {
+    Voiture* nouvelle_voiture = voiture;
+    if (nouvelle_voiture != NULL) {
+        if (*head == NULL) {
+            *head = nouvelle_voiture;
+        } else {
+            Voiture * voiture_actuelle = *head;
+            while (voiture_actuelle->suivant != NULL) {
+                voiture_actuelle = voiture_actuelle->suivant;
             }
-        }else{
-            printf("La place est deja prise.\n");
+            voiture_actuelle->suivant = nouvelle_voiture;
         }
+    } else {
+        printf("Error : Create a new node is impossible.\n");
     }
 }
 
-void supprimer(int x, int y) {
-    if (parking[x][y].estPositionne == 1) {
-        parking[x][y].estPositionne = 0;
-        compteur-=1;
-        if (x==0){
-            printf("La place A%d vient de se liberer\n", y+1);
-        }else if (x==1){
-            printf("La place B%d vient de se liberer\n", y+1);
-        }else if (x==2){
-            printf("La place C%d vient de se liberer\n", y+1);
-        }else if (x==3){
-            printf("La place D%d vient de se liberer\n", y+1);
-        }else if (x==4){
-            printf("La place E%d vient de se liberer\n", y+1);
-        }
-    }else{
-        printf("La place est deja vide.\n");
+void afficherListe(Voiture * head) {
+    Voiture * voiture_actuelle = head;
+    printf("Voitures de la liste :\n");
+    while (voiture_actuelle != NULL) {
+        printf("marque : %s, modele : %s, annee : %d\n", voiture_actuelle->marque, voiture_actuelle->modele, voiture_actuelle->annee);
+        voiture_actuelle = voiture_actuelle->suivant;
     }
+    printf("NULL\n");
 }
+
+
+void delete_element(Voiture* head[], char *modele){
+    Voiture * voiture_actuelle = head;
+    if (strcmp(voiture_actuelle->modele, modele)){
+        *head = voiture_actuelle->suivant;
+    }else{
+        while (strcmp(voiture_actuelle->suivant->modele, modele)!=0) {
+            voiture_actuelle = voiture_actuelle->suivant;
+        }
+        voiture_actuelle->suivant = voiture_actuelle->suivant->suivant;
+    }
+
+}
+
 
 int main() {
+    Voiture * head = NULL;
 
-    for (int i = 0; i < 5; ++i) {
-        for (int j = 0; j < 3; ++j) {
-            parking[i][j].estPositionne = 0;
-        }
-    }
-    int x = 0;
-    int y = 0;
-    while (compteur >= 0) {
-        int choix;
-        printf("Bienvenue dans votre parking\n");
-        printf("Que souhaitez-vous faire ?\n");
-        printf("1. ajouter une voiture\n");
-        printf("2. suprimmer une voiture et trouver une place\n");
-        printf("3. quitter le parking\n");
-        scanf("%d", &choix);
-        if(choix == 1){
-            if(x >=0 && x<7 && y >=0 && y<5){
-                ajouter(x,y);
-                if (parking[x][y+1].estPositionne == 0){
-                    y+=1;
-                    if (y>2){
-                        y = 0;
-                        x+=1;
-                        if(x>4){
-                            printf("Le parking est plein.\n");
-                            y=2;
-                            x=4;
-                        }
-                    }
-                }
-                else if (compteur ==15){
-                    printf("Le parking est plein.\n");
-                }
+    Voiture voiture1 = creer_voiture("Renault", "megane", 2000);
+    Voiture voiture2 = creer_voiture("Fiat", "500", 1967);
+        
+    insert_end(&head, &voiture1);
+    insert_end(&head, &voiture2);
 
-            }
+    printf("liste de départ :");
+    afficherListe(head);
 
 
-        }else if(choix == 2){  //une fois le parking plein, il supprime les places en recommençant du début (cad A1) mais comme il supprime à reculons, à partir du moment où le parking est plein est que la place A1 est la seule de libre, il ne peut supprimer qu'elle.
-            if (compteur > 0){
-                y-=1;
-                if (y<0){
-                    y =2;
-                    x-=1;
-                    if (x<0){
-                        x=3;
-                        y=4;
-                    }
-                }
-                supprimer(x,y);
-            }else{
-                printf("Le parking est deja vide\n");
-            }
-        }
+    printf("liste en enlevant une voiture :");
+    delete_element(&head, "500");
+    afficherListe(head);
 
-        else if(choix == 3){
-            printf("Vous quittez le parking, il y au total %d voitures. Au revoir.\n", compteur);
-            break;
-        }
-        else{
-            printf("Choisissez une commande valide");
-        }
+    // Liberation de la memoire
+    while (head != NULL) {
+        Voiture * temporary = head;
+        head = head->suivant;
+        free(temporary);
     }
 
     return 0;
